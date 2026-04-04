@@ -27,7 +27,9 @@ export default function CrearGasto({ onSuccess }: { onSuccess?: () => void }) {
     resolver: zodResolver(gastoFormSchema),
     defaultValues: {
       descripcion: '',
-      monto: 0
+      monto: 0,
+      categoria: "Alimentación",
+      fecha: new Date()
     }
   });
 
@@ -91,7 +93,7 @@ export default function CrearGasto({ onSuccess }: { onSuccess?: () => void }) {
           </div>
         )}
         <GastoForm
-          defaultValues={{ descripcion: '', monto: 0 }}
+          defaultValues={{ descripcion: '', monto: 0, categoria: "Alimentación", fecha: new Date() }}
           onSubmit={onSubmit}
           submitButtonText="Agregar"
           isSubmitting={isSubmitting}
