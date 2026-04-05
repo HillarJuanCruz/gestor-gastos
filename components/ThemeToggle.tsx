@@ -21,7 +21,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2 rounded-lg bg-fourth hover:ring-2 ring-amber-500 transition-all"
+      className="p-2 rounded-lg hover:ring-2 hover:ring-amber-500 bg-second/20 transition-all"
       aria-label="Cambiar modo de color"
     >
       {theme === "dark" ? "🌙" : "☀️"}
