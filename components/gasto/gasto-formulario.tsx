@@ -68,7 +68,7 @@ export default function GastoForm({
             <FormItem>
               <FormLabel>Categoría</FormLabel>
               <FormControl>
-                <Select {...field}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar categoría" />
                   </SelectTrigger>

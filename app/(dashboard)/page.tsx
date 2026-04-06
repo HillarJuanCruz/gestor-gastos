@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import CrearGasto from '@/components/gastos/crear-gasto';
-import TablaGastos from '@/components/gastos/gasto-tabla';
+import CrearGasto from '@/components/gasto/crear-gasto';
+import TablaGastos from '@/components/gasto/gasto-tabla';
 import { Gasto } from '@/types';
 import { toast } from 'sonner';
 
@@ -48,7 +48,10 @@ export default function DashboardPage() {
             Cargando transacciones...
           </div>
         ) : (
-          <TablaGastos gastos={gastos} />
+          <TablaGastos
+            gastos={gastos}
+            onGastoEliminado={fetchGastos}
+          />
         )}
       </section>
     </div>
