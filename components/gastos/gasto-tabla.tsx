@@ -1,11 +1,14 @@
 // src/components/TablaGastos.tsx
 import { Gasto } from '@/types';
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface Props {
   gastos: Gasto[];
 }
 
 export default function TablaGastos({ gastos }: Props) {
+  console.log("Gastos recibidos en TablaGastos:", gastos);
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-300 bg-white text-md">
@@ -34,7 +37,9 @@ export default function TablaGastos({ gastos }: Props) {
                     {gasto.categoria}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-400 text-center">{gasto.fecha}</td>
+                <td className="px-4 py-3 text-gray-500 text-center text-sm">
+                  {format(new Date(gasto.fecha), "dd/MM/yyyy", { locale: es })}
+                </td>
                 <td className={`px-4 py-3 text-center font-semibold  ${gasto.monto < 0 ? 'text-red-400' : 'text-green-400'}`}>
                   $ {Math.abs(gasto.monto).toLocaleString('es-AR')}
                 </td>

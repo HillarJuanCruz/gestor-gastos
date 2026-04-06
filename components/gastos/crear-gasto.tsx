@@ -1,4 +1,6 @@
 'use client';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,100 +10,64 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-
-import { gastoFormSchema, type GastoFormData } from '@/lib/schemas';
-import { useState } from 'react';
-
+import { GastoFormData } from '@/lib/schemas';
 import GastoForm from './gasto-formulario';
+import { toast } from 'sonner';
 
-export default function CrearGasto({ onSuccess }: { onSuccess?: () => void }) {
-
+export default function CrearGasto({ onSuccess }: { onSuccess: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const form = useForm<GastoFormData>({
-    resolver: zodResolver(gastoFormSchema),
-    defaultValues: {
-      descripcion: '',
-      monto: 0,
-      categoria: "Alimentación",
-      fecha: new Date()
-    }
-  });
 
   const onSubmit = async (data: GastoFormData) => {
     setIsSubmitting(true);
     try {
-        console.log("Datos a enviar:", data);
-        /*
-        const response = await fetch("/api/sections", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
+      const response = await fetch("/api/gastos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-        const responseData = await response.json();
+      if (!response.ok) throw new Error("Error al guardar el gasto");
 
-        if (!response.ok) {
-            throw new Error(
-                responseData.message || "Error al crear la sección"
-            );
-        }
-        */
-        form.reset();
-        setIsDialogOpen(false);
-        // Llamar callback para refrescar la lista
-        if (onSuccess) {
-            onSuccess();
-        }
-        // También refrescar la página como fallback
-        window.location.reload();
-        setErrorMessage("");
+      toast.success("Gasto registrado correctamente");
+      setIsDialogOpen(false); // Cierra el modal
+
+      // Ejecuta la función del padre para refrescar la tabla sin recargar
+      onSuccess();
+
     } catch (error) {
-        console.error("Error al crear la sección:", error);
-        const errorMessage =
-            error instanceof Error
-                ? error.message
-                : "Error inesperado al crear la sección";
-        setErrorMessage(errorMessage);
+      console.error("Error al guardar el gasto:", error);
+      toast.error("Hubo un problema al guardar");
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="bg-second hover:bg-yellow-500 text-white font-bold py-4 px-4 mr-2 rounded-xl transition-all">
+        <Button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded-xl transition-all">
           Agregar Gasto
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Agregar nuevo gasto</DialogTitle>
-          <DialogDescription>
-            Completá los datos para actualizar tu balance.
-          </DialogDescription>
+          <DialogDescription>Completá los datos del gasto.</DialogDescription>
         </DialogHeader>
-        {errorMessage && (
-          <div className="text-red-500 text-sm mb-4">
-              {errorMessage}
-          </div>
-        )}
+
         <GastoForm
-          defaultValues={{ descripcion: '', monto: 0, categoria: "Alimentación", fecha: new Date() }}
+          defaultValues={{
+            descripcion: '',
+            monto: 0,
+            categoria: "Alimentación",
+            fecha: new Date()
+          }}
           onSubmit={onSubmit}
-          submitButtonText="Agregar"
+          submitButtonText="Guardar"
           isSubmitting={isSubmitting}
         />
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-/*
-
-*/

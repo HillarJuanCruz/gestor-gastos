@@ -19,7 +19,6 @@ export function UserProfile() {
   if (!user) return null
 
   const avatarUrl = user.user_metadata.avatar_url
-  console.log("Avatar URL:", avatarUrl)
   return (
     <div className="flex items-center gap-2">
       <Image

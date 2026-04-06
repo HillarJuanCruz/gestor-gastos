@@ -32,7 +32,6 @@ interface GastoFormProps {
   isSubmitting: boolean;
 }
 
-
 export default function GastoForm({
   defaultValues,
   onSubmit,
