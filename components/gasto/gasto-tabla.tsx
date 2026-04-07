@@ -1,4 +1,4 @@
-// src/components/TablaGastos.tsx
+'use client';
 import { Gasto } from '@/types';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -6,53 +6,36 @@ import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '../ui/dropdown-menu';
-import { PencilIcon, TrashIcon, Ellipsis, Loader2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '../ui/alert-dialog';
-import { toast } from 'sonner';
-import { useState } from 'react';
+
 import ModificarGasto from './modificar-gasto';
-interface Props {
-  gastos: Gasto[];
-  onGastoEliminado: () => void; // <--- Nueva prop para refrescar la lista
+import Loading from '../Loading';
+import EliminarGasto from './eliminar-gasto';
+import { Ellipsis } from 'lucide-react';
+
+interface TablaGastosProps {
+  data: Gasto[] | null;
+  loading: boolean;
+  error: Error | null;
+  onActionSuccess: () => void;
 }
 
-export default function TablaGastos({ gastos, onGastoEliminado }: Props) {
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [gastoAEditar, setGastoAEditar] = useState<Gasto | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+export default function TablaGastos( { data, loading, error, onActionSuccess }: TablaGastosProps ) {
 
-  const handleEliminar = async (id: string) => {
-    setIsDeleting(id);
-    try {
-      const res = await fetch(`/api/gastos/${id}`, {
-        method: 'DELETE',
-      });
+  if (loading) return <Loading />;
 
-      if (!res.ok) throw new Error("No se pudo eliminar");
+  if (error) {
+      return (
+          <div className="text-center py-10">
+              <p className="text-red-500">Error al cargar las secciones.</p>
+              <p className="text-sm text-gray-500 mt-2">Intenta recargar la página</p>
+          </div>
+      );
+  }
 
-      toast.success("Gasto eliminado");
-      onGastoEliminado(); // Refresca la tabla en el padre
-    } catch (error) {
-      toast.error("Error al eliminar el gasto", { description: (error as Error).message });
-    } finally {
-      setIsDeleting(null);
-    }
-  };
+  const gastos = data || [];
 
   return (
     <div className="overflow-x-auto">
@@ -91,10 +74,6 @@ export default function TablaGastos({ gastos, onGastoEliminado }: Props) {
                 </td>
                 <td className="px-4 py-3 text-center">
                   {/* Si se está borrando este gasto específico, mostramos un loader */}
-                  {isDeleting === gasto.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto text-slate-400" />
-                  ) : (
-
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -102,66 +81,17 @@ export default function TablaGastos({ gastos, onGastoEliminado }: Props) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem
-                            onSelect={() => {
-                              setGastoAEditar(gasto);
-                              setIsEditOpen(true);
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <PencilIcon />
-                            Modificar
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
+                            <ModificarGasto gasto={gasto} onSuccess={onActionSuccess} />
                         <DropdownMenuSeparator />
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem
-                                onSelect={(e) => e.preventDefault()} // Evita que el dropdown se cierre antes del modal
-                                className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                              >
-                                <TrashIcon className="mr-2 h-4 w-4" />
-                                <span>Eliminar</span>
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Esta acción no se puede deshacer. Se eliminará el gasto de &quot;
-                                    <strong>{gasto.descripcion}</strong>
-                                    &quot; de forma permanente.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleEliminar(gasto.id)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Eliminar gasto
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <EliminarGasto id={gasto.id.toString()} descripcion={gasto.descripcion} onSuccess={onActionSuccess} />
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
                 </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
-      {gastoAEditar && (
-        <ModificarGasto
-          gasto={gastoAEditar}
-          open={isEditOpen}
-          onOpenChange={setIsEditOpen}
-          onSuccess={onGastoEliminado} // Reutilizamos la función de refresco
-        />
-      )}
     </div>
   );
 }

@@ -10,13 +10,26 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { GastoFormData } from '@/lib/schemas';
+import { GastoFormData, gastoFormSchema } from '@/lib/schemas';
 import GastoForm from './gasto-formulario';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export default function CrearGasto({ onSuccess }: { onSuccess: () => void }) {
+export default function CrearGasto( { onSuccess }: { onSuccess: () => void } ) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const form = useForm<GastoFormData>({
+    resolver: zodResolver(gastoFormSchema),
+    defaultValues: {
+      descripcion: '',
+      monto: 0,
+      categoria: "Otros",
+      fecha: new Date()
+    }
+  });
 
   const onSubmit = async (data: GastoFormData) => {
     setIsSubmitting(true);
@@ -27,17 +40,24 @@ export default function CrearGasto({ onSuccess }: { onSuccess: () => void }) {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Error al guardar el gasto");
+      const responseData = await response.json();
 
+      if (!response.ok) throw new Error( responseData.message || "Error al guardar el gasto");
+
+      form.reset();
       toast.success("Gasto registrado correctamente");
-      setIsDialogOpen(false); // Cierra el modal
+      setIsDialogOpen(false);
 
-      // Ejecuta la función del padre para refrescar la tabla sin recargar
-      onSuccess();
-
+      setErrorMessage("");
+      if(onSuccess) onSuccess();
     } catch (error) {
       console.error("Error al guardar el gasto:", error);
       toast.error("Hubo un problema al guardar");
+      const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "Error inesperado al crear el gasto";
+      setErrorMessage(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -55,7 +75,11 @@ export default function CrearGasto({ onSuccess }: { onSuccess: () => void }) {
           <DialogTitle>Agregar nuevo gasto</DialogTitle>
           <DialogDescription>Completá los datos del gasto.</DialogDescription>
         </DialogHeader>
-
+        {errorMessage && (
+          <div className="text-red-500 text-sm mb-4">
+              {errorMessage}
+          </div>
+        )}
         <GastoForm
           defaultValues={{
             descripcion: '',
