@@ -6,15 +6,21 @@ datasource db {
   provider = "postgresql"
 }
 
-model Gasto {
+enum TipoTransaccion {
+  INGRESO
+  EGRESO
+}
+
+model Transaccion {
   id          String   @id @default(uuid())
   descripcion String
   monto       Decimal  @db.Decimal(12, 2)
   categoria   String
+  tipo        TipoTransaccion @default(EGRESO)
   fecha       DateTime @default(now())
   createdAt   DateTime @default(now())
 
   user_id      String @db.Uuid
 
-  @@map("gastos") // Para que en la DB la tabla se llame "gastos" en minúscula
+  @@map("transacciones") // Para que en la DB la tabla se llame "transacciones" en minúscula
 }

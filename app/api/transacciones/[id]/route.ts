@@ -1,10 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
-import { isNull } from "util";
-import { Description } from "@radix-ui/react-dialog";
 
-// GET /api/gastos/[id] - Obtener un gasto por ID
+// GET /api/gastos/[id] - Obtener un transaccion por ID
 /*
 export async function GET(
   req: NextRequest,
@@ -15,7 +13,7 @@ export async function GET(
 
     if (isNaN(parseInt(id))) {
       return NextResponse.json(
-        { error: "ID de gasto inválido" },
+        { error: "ID de transaccion inválido" },
         { status: 400 }
       );
     }
@@ -27,31 +25,31 @@ export async function GET(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const gasto = await prisma.gasto.findUnique({
+    const transaccion = await prisma.transaccion.findUnique({
       where: {
         user_id: user.id,
         id
       }
     });
 
-    if (!gasto) {
+    if (!transaccion) {
       return NextResponse.json(
-        { error: "Gasto no encontrado" },
+        { error: "transaccion no encontrado" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(gasto);
+    return NextResponse.json(transaccion);
   } catch (error) {
-    console.error('Error fetching gasto:', error);
+    console.error('Error fetching transaccion:', error);
     return NextResponse.json(
-      { error: `Error al obtener gasto`},
+      { error: `Error al obtener transaccion`},
       { status: 500 }
     );
   }
 }
 */
-// PUT /api/sections/[id] - Actualizar una sección
+// PUT /api/sections/[id] - Actualizar una transaccion
 
 export async function PUT(
   req: NextRequest,
@@ -68,32 +66,39 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { descripcion, monto, categoria, fecha } = body;
+    const { descripcion, monto, categoria, tipo, fecha } = body;
 
     // Validar que se proporcione los datos
     if (!descripcion?.trim()) {
       return NextResponse.json(
-        { error: "La descripción del gasto es requerida" },
+        { error: "La descripción del transaccion es requerida" },
         { status: 400 }
       );
     }
 
     if (!monto || monto <= 0) {
       return NextResponse.json(
-        { error: "El monto del gasto es requerido y debe ser un número positivo" },
+        { error: "El monto del transaccion es requerido y debe ser un número positivo" },
         { status: 400 }
       );
     }
 
     if (!categoria?.trim()) {
       return NextResponse.json(
-        { error: "La categoría del gasto es requerida" },
+        { error: "La categoría del transaccion es requerida" },
         { status: 400 }
       );
     }
 
-    // Actualizar la sección
-    const updatedGasto = await prisma.gasto.updateMany({
+    if (!tipo?.trim()) {
+      return NextResponse.json(
+        { error: "El tipo del transaccion es requerido" },
+        { status: 400 }
+      );
+    }
+
+    // Actualizar la transaccion
+    const updatedGasto = await prisma.transaccion.updateMany({
       where: {
         id: id,
         user_id: user.id,
@@ -102,28 +107,29 @@ export async function PUT(
         descripcion,
         monto: parseFloat(monto),
         categoria,
+        tipo,
         fecha: fecha ? new Date(fecha) : new Date(),
       }
     });
 
     if (updatedGasto.count === 0) {
       return NextResponse.json(
-        { error: "Gasto no encontrado o no autorizado" },
+        { error: "transaccion no encontrado o no autorizado" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(updatedGasto);
   } catch (error) {
-    console.error('Error updating gasto:', error);
+    console.error('Error updating transaccion:', error);
     return NextResponse.json(
-      { error: "Error al actualizar gasto" },
+      { error: "Error al actualizar transaccion" },
       { status: 500 }
     );
   }
 }
 
-// DELETE /api/gastos/[id] - Eliminar un gasto
+// DELETE /api/gastos/[id] - Eliminar una transaccion
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -138,7 +144,7 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const result = await prisma.gasto.deleteMany({
+    const result = await prisma.transaccion.deleteMany({
       where: {
         id: id,
         user_id: user.id,
@@ -147,20 +153,20 @@ export async function DELETE(
 
     if (result.count === 0) {
       return NextResponse.json(
-        { error: "Gasto no encontrado o no autorizado" },
+        { error: "transaccion no encontrada o no autorizado" },
         { status: 404 }
       );
     }
 
 
     return NextResponse.json(
-      { message: "Gasto eliminado exitosamente" },
+      { message: "transaccion eliminada exitosamente" },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error deleting gasto:', error);
+    console.error('Error deleting transaccion:', error);
     return NextResponse.json(
-      { error: "Error interno al eliminar el gasto" },
+      { error: "Error interno al eliminar la transaccion" },
       { status: 500 }
     );
   }

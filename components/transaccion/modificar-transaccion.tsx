@@ -2,45 +2,45 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { GastoFormData } from "@/lib/schemas";
-import { Gasto } from "@/types";
-import GastoForm from "./gasto-formulario";
+import { TransaccionFormData } from "@/lib/schemas";
+import { Transaccion } from "@/types";
+import TransaccionForm from "./transaccion-formulario";
 import { toast } from "sonner";
 import { PencilIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
-interface ModificarGastoProps {
-  gasto: Gasto;
+interface ModificarTransaccionProps {
+  transaccion: Transaccion;
   onSuccess: () => void;
 }
 
-export default function ModificarGasto({ gasto, onSuccess }: ModificarGastoProps) {
+export default function ModificarTransaccion({ transaccion, onSuccess }: ModificarTransaccionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const onSubmit = async (data: GastoFormData) => {
+  const onSubmit = async (data: TransaccionFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/gastos/${gasto.id}`, {
+      const response = await fetch(`/api/transacciones/${transaccion.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Error al actualizar el gasto");
+      if (!response.ok) throw new Error("Error al actualizar la transacción");
 
-      toast.success("Gasto actualizado correctamente");
+      toast.success("Transacción actualizada correctamente");
       setErrorMessage("");
       if (onSuccess) onSuccess();
       setIsDialogOpen(false);
     } catch (error) {
-      console.error("Error al actualizar el gasto:", error);
-      toast.error("No se pudo actualizar el gasto");
+      console.error("Error al actualizar la transaccion:", error);
+      toast.error("No se pudo actualizar la transaccion");
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Error inesperado al actualizar el gasto";
+          : "Error inesperado al actualizar la transaccion";
       setErrorMessage(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -57,7 +57,7 @@ export default function ModificarGasto({ gasto, onSuccess }: ModificarGastoProps
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Modificar gasto</DialogTitle>
+          <DialogTitle>Modificar transaccion</DialogTitle>
         </DialogHeader>
         {
           errorMessage && (
@@ -65,13 +65,14 @@ export default function ModificarGasto({ gasto, onSuccess }: ModificarGastoProps
               {errorMessage}
             </div>
         )}
-        <GastoForm
-          // Pasamos los valores actuales del gasto como valores iniciales
+        <TransaccionForm
+          // Pasamos los valores actuales del transaccion como valores iniciales
           defaultValues={{
-            descripcion: gasto.descripcion,
-            monto: Number(gasto.monto),
-            categoria: gasto.categoria,
-            fecha: new Date(gasto.fecha),
+            descripcion: transaccion.descripcion,
+            monto: Number(transaccion.monto),
+            categoria: transaccion.categoria,
+            tipo: transaccion.tipo,
+            fecha: new Date(transaccion.fecha),
           }}
           onSubmit={onSubmit}
           submitButtonText="Guardar cambios"

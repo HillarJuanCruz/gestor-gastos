@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { CATEGORIAS_GASTOS, gastoFormSchema, type GastoFormData } from "@/lib/schemas";
+import { CATEGORIAS_EGRESOS, CATEGORIAS_INGRESOS, transaccionFormSchema, type TransaccionFormData } from "@/lib/schemas";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -24,30 +24,73 @@ import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
 
-interface GastoFormProps {
-  defaultValues: GastoFormData;
-  onSubmit: (data: GastoFormData) => Promise<void>;
+interface TransaccionFormProps {
+  defaultValues: TransaccionFormData;
+  onSubmit: (data: TransaccionFormData) => Promise<void>;
   submitButtonText: string;
   isSubmitting: boolean;
 }
 
-export default function GastoForm({
+export default function TransaccionForm({
   defaultValues,
   onSubmit,
   submitButtonText,
   isSubmitting
-  }: GastoFormProps ) {
-  const form = useForm<GastoFormData>({
-    resolver: zodResolver(gastoFormSchema),
+}: TransaccionFormProps) {
+  const form = useForm<TransaccionFormData>({
+    resolver: zodResolver(transaccionFormSchema),
     defaultValues
   });
 
   const [open, setOpen] = useState(false);
 
+  const tipoActual = useWatch({
+    control: form.control,
+    name: "tipo",
+  })
+
+  const categoriasAMostrar = tipoActual === "INGRESO"
+    ? CATEGORIAS_INGRESOS
+    : CATEGORIAS_EGRESOS;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="tipo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo de transacción</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    form.setValue(
+                      "categoria",
+                      val === "INGRESO" ? CATEGORIAS_INGRESOS[0] : CATEGORIAS_EGRESOS[0]
+                    );
+                  }}
+                  defaultValue={field.value}
+                  className="flex space-x-4 mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="EGRESO" id="egreso" />
+                    <Label htmlFor="egreso">Gasto</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="INGRESO" id="ingreso" />
+                    <Label htmlFor="ingreso">Ingreso</Label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage className="text-red-500 text-sm mt-1" />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="descripcion"
@@ -68,13 +111,18 @@ export default function GastoForm({
             <FormItem>
               <FormLabel>Categoría</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                  key={tipoActual} // Forzar re-render al cambiar tipo
+                >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar categoría" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      {CATEGORIAS_GASTOS.map((categoria) => (
+                      {categoriasAMostrar.map((categoria) => (
                         <SelectItem key={categoria} value={categoria}>
                           {categoria}
                         </SelectItem>
@@ -128,9 +176,8 @@ export default function GastoForm({
                   <FormControl>
                     <Button
                       variant={"outline"}
-                      className={`w-full pl-3 text-left font-normal ${
-                        !field.value && "text-muted-foreground"
-                      }`}
+                      className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"
+                        }`}
                     >
                       {field.value ? (
                         format(field.value, "PPP", { locale: es })

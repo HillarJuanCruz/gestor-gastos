@@ -10,20 +10,21 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { GastoFormData, gastoFormSchema } from '@/lib/schemas';
-import GastoForm from './gasto-formulario';
+import { TransaccionFormData, transaccionFormSchema } from '@/lib/schemas';
+import TransaccionForm from './transaccion-formulario';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-export default function CrearGasto( { onSuccess }: { onSuccess: () => void } ) {
+export default function CrearTransaccion( { onSuccess }: { onSuccess: () => void } ) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const form = useForm<GastoFormData>({
-    resolver: zodResolver(gastoFormSchema),
+  const form = useForm<TransaccionFormData>({
+    resolver: zodResolver(transaccionFormSchema),
     defaultValues: {
+      tipo: "EGRESO",
       descripcion: '',
       monto: 0,
       categoria: "Otros",
@@ -31,10 +32,10 @@ export default function CrearGasto( { onSuccess }: { onSuccess: () => void } ) {
     }
   });
 
-  const onSubmit = async (data: GastoFormData) => {
+  const onSubmit = async (data: TransaccionFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/gastos", {
+      const response = await fetch("/api/transacciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -42,21 +43,21 @@ export default function CrearGasto( { onSuccess }: { onSuccess: () => void } ) {
 
       const responseData = await response.json();
 
-      if (!response.ok) throw new Error( responseData.message || "Error al guardar el gasto");
+      if (!response.ok) throw new Error( responseData.message || "Error al guardar la transaccion");
 
       form.reset();
-      toast.success("Gasto registrado correctamente");
+      toast.success("Transaccion registrada correctamente");
       setIsDialogOpen(false);
 
       setErrorMessage("");
       if(onSuccess) onSuccess();
     } catch (error) {
-      console.error("Error al guardar el gasto:", error);
+      console.error("Error al guardar la transaccion:", error);
       toast.error("Hubo un problema al guardar");
       const errorMessage =
                 error instanceof Error
                     ? error.message
-                    : "Error inesperado al crear el gasto";
+                    : "Error inesperado al crear la transaccion";
       setErrorMessage(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -67,24 +68,25 @@ export default function CrearGasto( { onSuccess }: { onSuccess: () => void } ) {
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded-xl transition-all">
-          Agregar Gasto
+          Nueva Transacción
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Agregar nuevo gasto</DialogTitle>
-          <DialogDescription>Completá los datos del gasto.</DialogDescription>
+          <DialogTitle>Agregar nueva transacción</DialogTitle>
+          <DialogDescription>Completá los datos de la transacción.</DialogDescription>
         </DialogHeader>
         {errorMessage && (
           <div className="text-red-500 text-sm mb-4">
               {errorMessage}
           </div>
         )}
-        <GastoForm
+        <TransaccionForm
           defaultValues={{
+            tipo: "EGRESO",
             descripcion: '',
             monto: 0,
-            categoria: "Alimentación",
+            categoria: "Otros",
             fecha: new Date()
           }}
           onSubmit={onSubmit}

@@ -1,5 +1,7 @@
 ## Ideas para agregar cosas
-- Agregar modificar y eliminar gastos
+[X] Agregar modificar y eliminar gastos
+- Agregar ingresos
+- Agregar CRUD categorias
 - Agregar balance
 - Agregar filtros por fecha, categoria, fecha, etc.
 - Agregar graficos de en que categorias se gasto mas
@@ -7,3 +9,4 @@
 - Agregar ingresos fijos
 - Registros de cuotas pendientes
 - Agregar gastos desde WhatsApp
+- Ver de agregar skeleton y loadings

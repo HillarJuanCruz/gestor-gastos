@@ -1,11 +1,17 @@
-import { CATEGORIAS_GASTOS } from "@/lib/schemas";
+import { CATEGORIAS_TRANSACCIONES } from "@/lib/schemas";
 
 // src/types/index.ts
-export type CategoriaGasto = (typeof CATEGORIAS_GASTOS)[number];
-export interface Gasto {
+export type CategoriaTransaccion = (typeof CATEGORIAS_TRANSACCIONES)[number];
+
+export enum TipoTransaccion {
+  INGRESO = "INGRESO",
+  EGRESO = "EGRESO"
+}
+export interface Transaccion {
   id: string;
   descripcion: string;
   monto: number;
-  categoria: CategoriaGasto;
+  categoria: CategoriaTransaccion;
+  tipo: TipoTransaccion;
   fecha: string;
 }

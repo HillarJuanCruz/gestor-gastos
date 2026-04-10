@@ -15,32 +15,32 @@ import {
 import { TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
-interface EliminarGastoProps {
+interface EliminarTransaccionProps {
   id: string;
   descripcion: string;
   onSuccess: () => void;
 }
 
-export default function EliminarGasto({ id, descripcion, onSuccess }: EliminarGastoProps) {
+export default function EliminarTransaccion({ id, descripcion, onSuccess }: EliminarTransaccionProps) {
     const handleEliminar = async () => {
         try {
-            const response = await fetch(`/api/gastos/${id}`, {
+            const response = await fetch(`/api/transacciones/${id}`, {
                 method: "DELETE",
             });
 
             if (response.ok) {
-                toast.success("Gasto eliminado exitosamente");
+                toast.success("Transacción eliminada exitosamente");
                 if (onSuccess) onSuccess();
             } else {
                 if (response.status === 409) {
-                    toast.error("No se puede eliminar el gasto porque tiene propiedades asociadas");
+                    toast.error("No se puede eliminar la transacción porque tiene propiedades asociadas");
                 } else {
-                    toast.error("Error al eliminar el gasto");
+                    toast.error("Error al eliminar la transacción");
                 }
             }
         } catch (error) {
-            console.error("Error deleting gasto:", error);
-            toast.error("Error al eliminar el gasto");
+            console.error("Error deleting transaccion:", error);
+            toast.error("Error al eliminar la transacción");
         }
     };
 
@@ -59,7 +59,7 @@ export default function EliminarGasto({ id, descripcion, onSuccess }: EliminarGa
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará el gasto de &quot;
+              Esta acción no se puede deshacer. Se eliminará la transacción de &quot;
                 <strong>{descripcion}</strong>
                 &quot; de forma permanente.
             </AlertDialogDescription>
@@ -70,7 +70,7 @@ export default function EliminarGasto({ id, descripcion, onSuccess }: EliminarGa
               onClick={handleEliminar}
               className="bg-red-600 hover:bg-red-700"
             >
-              Eliminar gasto
+              Eliminar transacción
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

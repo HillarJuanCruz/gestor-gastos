@@ -1,4 +1,4 @@
-import SeccionGastos from '@/components/gasto/gasto-seccion';
+import SeccionGastos from '@/components/transaccion/transaccion-seccion';
 
 export default function DashboardPage() {
   return (
