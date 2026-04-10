@@ -38,55 +38,54 @@ export default function TablaTransacciones({ data, loading, error, onActionSucce
   const transacciones = data || [];
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-300 bg-white text-md">
-        <thead className="bg-white">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+      <table className="min-w-full divide-y divide-border text-sm">
+        <thead className="bg-muted/40">
           <tr>
-            <th className="px-4 py-3 text-left font-semibold text-gray-900">Descripción</th>
-            <th className="px-4 py-3 text-center font-semibold text-gray-900">Categoría</th>
-            <th className="px-4 py-3 text-center font-semibold text-gray-900">Fecha</th>
-            <th className="px-4 py-3 text-center font-semibold text-gray-900">Monto</th>
-            <th className="px-4 py-3 text-center font-semibold text-gray-900">Acciones</th>
+            <th className="px-4 py-3 text-left font-semibold text-foreground">Descripción</th>
+            <th className="px-4 py-3 text-center font-semibold text-foreground">Categoría</th>
+            <th className="px-4 py-3 text-center font-semibold text-foreground">Fecha</th>
+            <th className="px-4 py-3 text-center font-semibold text-foreground">Monto</th>
+            <th className="px-4 py-3 text-center font-semibold text-foreground">Acciones</th>
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-border">
           {transacciones.length === 0 ? (
             <tr>
-              <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+              <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                 No hay transacciones registradas aún.
               </td>
             </tr>
           ) : (
             transacciones.map((transaccion) => (
-              <tr key={transaccion.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 font-medium text-gray-700">{transaccion.descripcion}</td>
-                <td className="px-4 py-3 text-gray-400 text-center">
-                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+              <tr key={transaccion.id} className="hover:bg-muted/50 transition-colors">
+                <td className="px-4 py-3 font-medium text-foreground">{transaccion.descripcion}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary">
                     {transaccion.categoria}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-500 text-center text-sm">
+                <td className="px-4 py-3 text-muted-foreground text-center">
                   {format(new Date(transaccion.fecha), "dd/MM/yyyy", { locale: es })}
                 </td>
                 {transaccion.tipo === "EGRESO" ? (
-                  <td className="px-4 py-3 text-center font-semibold text-red-400">
+                  <td className="px-4 py-3 text-center font-semibold text-red-600 dark:text-red-400">
                     - $ {Math.abs(transaccion.monto).toLocaleString('es-AR')}
                   </td>
                 ) : (
-                  <td className="px-4 py-3 text-center font-semibold text-green-400">
+                  <td className="px-4 py-3 text-center font-semibold text-emerald-600 dark:text-emerald-400">
                     + $ {Math.abs(transaccion.monto).toLocaleString('es-AR')}
                   </td>
                 )}
                 <td className="px-4 py-3 text-center">
-                  {/* Si se está borrando esta transaccion específica, mostramos un loader */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Ellipsis />
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Ellipsis className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent align="end">
                       <ModificarTransaccion transaccion={transaccion} onSuccess={onActionSuccess} />
                       <DropdownMenuSeparator />
                       <EliminarTransaccion id={transaccion.id.toString()} descripcion={transaccion.descripcion} onSuccess={onActionSuccess} />
